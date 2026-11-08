@@ -1,0 +1,45 @@
+{
+  "name": "Floris Apps",
+  "identifier": "dev.codebyfh.iosapps",
+  "sourceURL": "https://raw.githubusercontent.com/code-by-fh/ios-apps/main/altstore-source.json",
+  "website": "https://github.com/code-by-fh/ios-apps",
+  "description": "Meine iOS-Apps aus einer gemeinsamen SideStore-Quelle.",
+  "tintColor": "63E6CB",
+  "apps": [
+    {
+      "name": "SideStart",
+      "bundleIdentifier": "dev.sidestart.sidestart",
+      "developerName": "code-by-fh",
+      "localizedDescription": "A minimal offline counter app. Install and refresh with SideStore or AltStore Classic.",
+      "iconURL": "https://github.com/code-by-fh/sidestart/releases/latest/download/icon.png",
+      "tintColor": "63E6CB",
+      "category": "utilities",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "buildVersion": "6",
+          "date": "2026-11-08",
+          "localizedDescription": "SideStart 0.1.0 (6).",
+          "downloadURL": "https://github.com/code-by-fh/sidestart/releases/download/v0.1.0-build.6/sidestart-ios-unsigned.ipa",
+          "size": 6165779,
+          "minOSVersion": "15.0"
+        },
+        {
+          "version": "0.1.0",
+          "buildVersion": "3",
+          "date": "2026-11-08",
+          "localizedDescription": "SideStart 0.1.0 (3).",
+          "downloadURL": "https://github.com/code-by-fh/sidestart/releases/download/v0.1.0-build.3/sidestart-ios-unsigned.ipa",
+          "size": 6165711,
+          "minOSVersion": "15.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ],
+  "news": [],
+  "iconURL": "https://github.com/code-by-fh/sidestart/releases/latest/download/icon.png"
+}

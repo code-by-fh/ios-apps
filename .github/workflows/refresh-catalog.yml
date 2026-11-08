@@ -1,0 +1,56 @@
+name: Refresh app catalog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps.json
+      - scripts/**
+      - .github/workflows/refresh-catalog.yml
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: python -m unittest discover -s scripts -p 'test_*.py' -v
+
+  refresh:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Read public app feeds and atomically update catalog
+        run: python scripts/build_catalog.py --config apps.json --output altstore-source.json
+      - name: Publish updated catalog
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- altstore-source.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh public app catalog'
+            git push origin HEAD:main
+          fi

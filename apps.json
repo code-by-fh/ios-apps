@@ -1,0 +1,16 @@
+{
+  "name": "Floris Apps",
+  "identifier": "dev.codebyfh.iosapps",
+  "sourceURL": "https://raw.githubusercontent.com/code-by-fh/ios-apps/main/altstore-source.json",
+  "website": "https://github.com/code-by-fh/ios-apps",
+  "description": "Meine iOS-Apps aus einer gemeinsamen SideStore-Quelle.",
+  "tintColor": "63E6CB",
+  "sources": [
+    {
+      "url": "https://github.com/code-by-fh/sidestart/releases/latest/download/altstore-source.json",
+      "license": "open-source",
+      "enabled": true,
+      "expectedBundleIdentifiers": ["dev.sidestart.sidestart"]
+    }
+  ]
+}
