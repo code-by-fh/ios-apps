@@ -3,7 +3,7 @@
   "identifier": "dev.codebyfh.iosapps",
   "sourceURL": "https://raw.githubusercontent.com/code-by-fh/ios-apps/main/altstore-source.json",
   "website": "https://github.com/code-by-fh/ios-apps",
-  "description": "Meine iOS-Apps aus einer gemeinsamen SideStore-Quelle.",
+  "description": "My iOS apps in a shared SideStore source.",
   "tintColor": "63E6CB",
   "apps": [
     {
@@ -15,6 +15,15 @@
       "tintColor": "63E6CB",
       "category": "utilities",
       "versions": [
+        {
+          "version": "0.1.0",
+          "buildVersion": "7",
+          "date": "2026-11-08",
+          "localizedDescription": "SideStart 0.1.0 (7).",
+          "downloadURL": "https://github.com/code-by-fh/sidestart/releases/download/v0.1.0-build.7/sidestart-ios-unsigned.ipa",
+          "size": 6165780,
+          "minOSVersion": "15.0"
+        },
         {
           "version": "0.1.0",
           "buildVersion": "6",
