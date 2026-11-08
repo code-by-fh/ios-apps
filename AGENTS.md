@@ -27,3 +27,8 @@
 - The license label is registry metadata; it changes neither app permissions nor app licensing.
 - Closed-source app code may stay private. Its distribution JSON, icon and IPA must be public HTTPS downloads; the catalog never needs private-repository credentials.
 - SideStore refreshes its own source list separately. A completed catalog workflow does not force an immediate source refresh or app installation on the iPhone.
+
+## English text policy
+
+- Keep all authored repository text in English, including current and future README files, documentation, UI text, comments, messages, script output, tests, metadata, configuration descriptions, commit messages and agent instructions.
+- Preserve technical identifiers, URLs, product names, user names and external data. Do not translate or manually edit generated altstore-source.json; publish configuration changes through the manual catalog workflow only.

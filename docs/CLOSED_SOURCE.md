@@ -1,61 +1,61 @@
-# Eine App mit geschlossenem Quellcode aufnehmen
+# Register a closed-source app
 
-Der zentrale Katalog benötigt eine öffentliche Source-JSON und öffentlich herunterladbare IPAs. Dein Flutter-Projekt, seine Git-Historie und seine Build-Skripte können in einem privaten Repository bleiben. Für Downloads wird ein getrenntes öffentliches Release-Repository verwendet.
+The central catalog needs a public source JSON file and publicly downloadable IPAs. Your Flutter project, Git history and build scripts can stay in a private repository. Use a separate public release repository for downloads.
 
 ```text
-Privates App-Repository
-        ↓ iOS-Build auf macOS in GitHub Actions
-Private Actions-Artefakte: unsignierte IPA
-        ↓ bewusste Veröffentlichung der Download-Dateien
-Öffentliches Release-Repository: IPA + JSON + Icon + Prüfsumme
-        ↓ öffentliche Source-URL in apps.json registrieren
-Zentraler Katalog code-by-fh/ios-apps
-        ↓
+Private app repository
+        ↓ iOS build on macOS in GitHub Actions
+Private Actions artifacts: unsigned IPA
+        ↓ explicitly publish download files
+Public release repository: IPA + JSON + icon + checksum
+        ↓ register the public source URL in apps.json
+Central catalog: code-by-fh/ios-apps
+        ↓ manually refresh the catalog
 SideStore / AltStore Classic
 ```
 
-## 1. App privat entwickeln und bauen
+## 1. Develop and build privately
 
-Verwende für jede App eine eigene Bundle-ID, zum Beispiel `com.yourcompany.myprivateapp`. Erstelle in deinem privaten App-Repository einen unsignierten **Release-Build für ein echtes iOS-Gerät**. Lade die erzeugte IPA aus einem erfolgreichen Actions-Lauf herunter und prüfe sie vor der Veröffentlichung. Ein erfolgreiches Paketieren ersetzt keinen Installationstest auf einem iPhone.
+Give each app its own bundle identifier, such as `com.yourcompany.myprivateapp`. Build an unsigned **release app for a physical iOS device** in your private app repository. Download the IPA from a successful Actions run and check it before publication. Successful packaging does not replace an installation test on an iPhone.
 
-Die IPA enthält die ausgelieferte App und ihre eingebetteten Ressourcen. Geheimnisse gehören nicht in den App-Code oder die Assets. Geschlossener Quellcode macht eine öffentlich ausgelieferte Binärdatei nicht vertraulich.
+The IPA includes the distributed app and its embedded resources. Keep secrets out of app code and assets. Closed source code does not make a publicly distributed binary confidential.
 
-## 2. Öffentliches Download-Repository anlegen
+## 2. Create a public download repository
 
-Mit deiner vorhandenen GitHub-CLI-Anmeldung:
+Using your existing GitHub CLI authentication:
 
 ```powershell
 gh auth status
 gh repo create owner/my-private-app-releases --public --add-readme
 ```
 
-Ersetze `owner` durch deinen GitHub-Namen beziehungsweise deine Organisation und wähle einen freien Repositorynamen. Dieses neue Repository wird ausdrücklich für öffentliche Binärdownloads angelegt. Das private Entwicklungsrepository behält seine Sichtbarkeit.
+Replace `owner` with your GitHub username or organization and choose an available repository name. This creates a new repository specifically for public binary downloads. Your private development repository keeps its existing visibility.
 
-Ergänze im Download-Repository einen Hinweis auf die tatsächliche App-Lizenz, beispielsweise eine proprietäre Lizenz mit den von dir erlaubten Nutzungsrechten. Ein öffentlicher Download und die Aufnahme in diesen Katalog erteilen nicht automatisch eine Open-Source-Lizenz.
+Add a notice explaining the app's actual license, such as a proprietary license specifying the usage rights you permit. Public downloads and catalog registration do not automatically grant an open-source license.
 
-## 3. IPA und App-Quelle veröffentlichen
+## 3. Publish the IPA and app source
 
-Wenn dein privates App-Projekt den vorbereiteten Publisher `scripts/publish_source.py` verwendet, führe dort aus:
+If your private app project uses the prepared `scripts/publish_source.py` publisher, run this command there:
 
 ```powershell
 python scripts/publish_source.py --repository owner/my-private-app-releases --ipa downloads/my-private-app.ipa
 ```
 
-Dieser explizite Zielparameter ist entscheidend: Er bezeichnet das öffentliche Download-Repository. Der Publisher lädt die IPA, die daraus erzeugte Source-JSON, ein Icon und die Prüfsumme hoch. Er kopiert keinen Projektquellcode und macht kein bestehendes privates Repository öffentlich. Die lokale GitHub-CLI-Anmeldung genügt; dafür werden keine zusätzlichen CI-Secrets eingerichtet.
+The explicit target identifies your public download repository. The publisher uploads the IPA, its generated source JSON, an icon and a checksum. It does not copy project source code or make an existing private repository public. Local GitHub CLI authentication is sufficient; this process needs no additional CI secrets.
 
-Der vorbereitete Publisher unterstützt die minimale ARM64-App ohne zusätzliche App-Erweiterungen oder eingebettete Provisioning-Profile. Er liest den App-Namen aus `CFBundleDisplayName` der IPA; die Vorlage setzt diesen Namen über die App-Konfiguration beim Erzeugen der Plattformdateien. Beschreibung und Plus-Icon sind zunächst Vorlagenwerte und können für deine App angepasst werden. Bundle-ID, Version, Buildnummer, Mindest-iOS-Version, Paketgröße und Berechtigungen stammen ebenfalls aus der tatsächlichen IPA. Zusätzliche native Fähigkeiten müssen vor einer Erweiterung geprüft werden.
+The prepared publisher supports a minimal ARM64 app without additional app extensions or embedded provisioning profiles. It reads the app name from the IPA's `CFBundleDisplayName`; the template sets that name through the app configuration when generating platform files. The description and plus icon are template defaults that you can customize. Bundle identifier, version, build number, minimum iOS version, package size and permissions also come from the actual IPA. Review additional native capabilities before extending the template.
 
-Die eigene App-Quelle muss anschließend ohne Anmeldung erreichbar sein:
+The app source must then be available without authentication:
 
 ```text
 https://github.com/owner/my-private-app-releases/releases/latest/download/altstore-source.json
 ```
 
-Prüfe auch den in dieser JSON enthaltenen IPA-Download und das Icon ohne GitHub-Anmeldung. Der Publisher prüft die öffentlichen URLs nach dem Upload; nur ein erfolgreicher Abschluss bestätigt diese Prüfung.
+Also check the IPA download and icon linked by this JSON without signing in to GitHub. The publisher checks public URLs after upload; only successful completion confirms that verification.
 
-## 4. Im zentralen Katalog registrieren
+## 4. Register it in the central catalog
 
-Im lokalen Checkout von `code-by-fh/ios-apps`:
+In your local checkout of `code-by-fh/ios-apps`:
 
 ```powershell
 python scripts/register_app.py --repository owner/my-private-app-releases --license closed-source
@@ -65,12 +65,12 @@ git push
 gh workflow run refresh-catalog.yml --repo code-by-fh/ios-apps --ref main
 ```
 
-Die Registrierung ergänzt den Link auf die öffentliche App-Quelle und die Lizenzkennzeichnung. Der Katalog-Workflow lädt Metadaten von diesem öffentlichen Endpunkt. Er benötigt keinen Zugriff auf das private App-Projekt.
+Registration adds the public app source URL and its license label. The catalog workflow reads metadata from this public endpoint without accessing the private app project.
 
-## 5. Neue App-Versionen bereitstellen
+## 5. Publish updates
 
-Neue IPA im privaten App-Projekt bauen und herunterladen, Version beziehungsweise Buildnummer erhöhen und mit demselben öffentlichen Zielrepository veröffentlichen. Die Source-URL bleibt gleich. Anschließend den Workflow **Refresh app catalog** im Katalog-Repository auf `main` manuell starten. Erst dieser Lauf übernimmt die neue Version in die gemeinsame Quelle; ein erneuter Registrierungseintrag ist nicht nötig. Es gibt keinen Zeitplan und keine Veröffentlichung des Katalogs durch Pushes.
+Build and download a new IPA in the private app project, increase its version or build number, and publish to the same public target repository. The source URL stays the same. Then manually start **Refresh app catalog** on `main` in the catalog repository. Only that run adds the new version to the shared source. You do not need another registration entry. There is no schedule, and pushes do not publish the catalog.
 
-Ein Push zum privaten App-Repository allein veröffentlicht die IPA noch nicht im öffentlichen Download-Repository. Die vorbereitete CI stellt dort Build-Artefakte bereit und überspringt die automatische Release-Veröffentlichung im privaten Repository. Der oben beschriebene lokale Veröffentlichungsbefehl ist ein eigener Schritt. Eine spätere automatische Veröffentlichung aus privater CI benötigt eine ausdrücklich eingerichtete Freigabe und passende Berechtigungen für das zweite Repository; das repositoryeigene `GITHUB_TOKEN` erhält diesen Zugriff nicht automatisch.
+A push to the private app repository alone does not publish the IPA to the public download repository. The prepared CI provides private build artifacts and skips automatic release publication in the private repository. Run the local publication command as a separate step. Future automatic publication from private CI would require explicit configuration and appropriate permissions for the second repository; the original repository's `GITHUB_TOKEN` does not receive that access automatically.
 
-Die [Katalogwerkzeuge stehen unter MIT](../LICENSE); die Lizenz der App bestimmst du separat. Prüfe das Ergebnis außerdem im Sideloader und auf einem echten Gerät.
+The [catalog tools use the MIT license](../LICENSE). You choose the app's license separately. Verify the result in your sideloader and on a physical device.

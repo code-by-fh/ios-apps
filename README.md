@@ -1,20 +1,20 @@
 # iOS Apps
 
-Zentraler App-Katalog für SideStore und AltStore Classic. Der Katalog führt öffentlich erreichbare App-Quellen zusammen. Er unterstützt sowohl Open-Source-Apps als auch Apps mit geschlossenem Quellcode; die Veröffentlichung einer IPA verlangt keinen öffentlichen Quellcode.
+A central app catalog for SideStore and AltStore Classic. The catalog combines publicly accessible app sources and supports both open-source and closed-source apps. Distributing an IPA does not require publishing its source code.
 
-Die vorgesehene Source-URL nach erfolgreicher Veröffentlichung dieses Repositories lautet:
+After this repository has been published successfully, use this source URL:
 
 ```text
 https://raw.githubusercontent.com/code-by-fh/ios-apps/main/altstore-source.json
 ```
 
-Diese Adresse in SideStore unter **Sources / Quellen → + / Add Source** eintragen. Der Katalog ist vorbereitet, aber seine Veröffentlichung und die Erreichbarkeit dieser URL müssen nach dem Push geprüft werden. Eine lokal bereits erzeugte JSON-Datei beweist noch keine öffentliche Verfügbarkeit. Installation und Signierung übernimmt weiterhin dein Sideloader mit deinem eigenen Apple Account.
+In SideStore, open **Sources → + / Add Source** and enter this address. Verify that the URL is publicly reachable after pushing the repository. A locally generated JSON file alone does not demonstrate public availability. Your sideloader handles installation and signing with your own Apple Account.
 
-## Aufbau
+## Structure
 
-`apps.json` enthält die registrierten Quellen. Jede aktivierte Quelle liefert ihre eigene Source-JSON mit App-Metadaten, Berechtigungen und versionsgebundenen IPA-Downloads. Der Katalog übernimmt diese Angaben und erzeugt daraus `altstore-source.json`. Er benötigt weder die privaten App-Repositories noch Apple-Anmeldedaten oder zusätzliche Zugriffstokens.
+`apps.json` lists the registered sources. Each enabled source supplies its own JSON with app metadata, permissions and version-specific IPA download URLs. The catalog combines this information into `altstore-source.json`. It does not need access to private app repositories, Apple credentials or additional access tokens.
 
-Die erste registrierte Quelle ist SideStart:
+SideStart is the first registered source:
 
 ```json
 {
@@ -22,17 +22,18 @@ Die erste registrierte Quelle ist SideStart:
     {
       "url": "https://github.com/code-by-fh/sidestart/releases/latest/download/altstore-source.json",
       "license": "open-source",
-      "enabled": true
+      "enabled": true,
+      "expectedBundleIdentifiers": ["dev.sidestart.sidestart"]
     }
   ]
 }
 ```
 
-Jede App muss eine eindeutige Bundle-ID besitzen. Die App-Quelle und ihre Downloadlinks müssen ohne Anmeldung erreichbar sein. GitHub Actions-Artefakte aus privaten Repositories eignen sich deshalb nicht als öffentliche Downloadlinks.
+Each app must have a unique bundle identifier. App sources and download URLs must be accessible without signing in. Actions artifacts from private GitHub repositories therefore cannot serve as public download URLs.
 
-## Eine App ergänzen
+## Add an app
 
-Wenn ein öffentliches Release-Repository bereits `altstore-source.json`, das Icon und die IPA bereitstellt:
+If a public release repository already provides `altstore-source.json`, an icon and an IPA:
 
 ```powershell
 python scripts/register_app.py --repository owner/app-releases --license closed-source
@@ -42,26 +43,30 @@ git push
 gh workflow run refresh-catalog.yml --repo code-by-fh/ios-apps --ref main
 ```
 
-Ersetze `owner/app-releases` durch das tatsächliche Release-Repository. Für eine Open-Source-App entsprechend `--license open-source` verwenden. Der Registrierungsbefehl bildet die Source-URL aus dem Repositorynamen; die Quelle muss als Datei des neuesten GitHub Releases verfügbar sein.
+Replace `owner/app-releases` with the actual release repository. For an open-source app, use `--license open-source`. The registration command derives the source URL from the repository name; the source must be attached to its latest GitHub release.
 
-Die Kennzeichnung `open-source` beziehungsweise `closed-source` beschreibt das Lizenzmodell. Sie verändert keine iOS-Berechtigungen und veröffentlicht keinen App-Quellcode. Für geschlossene Apps mit privatem Entwicklungsrepository beschreibt [docs/CLOSED_SOURCE.md](docs/CLOSED_SOURCE.md) den vollständigen Weg.
+The `open-source` and `closed-source` labels describe the licensing model. They do not change iOS permissions or publish app source code. See [docs/CLOSED_SOURCE.md](docs/CLOSED_SOURCE.md) for the complete process with a private development repository.
 
-## Aktualisierung
+## Refresh the catalog
 
-Der Katalog wird ausschließlich durch einen manuell gestarteten GitHub-Workflow auf `main` aktualisiert. Es gibt keinen Zeitplan. Pushes und Pull Requests führen nur Prüfungen aus und veröffentlichen keinen Katalog. Auch neue App-Releases werden erst nach dem manuellen Start in den gemeinsamen Katalog übernommen.
+The catalog is updated **only by manually starting its GitHub workflow on `main`**. There is no schedule. Pushes and pull requests run checks without publishing the catalog. New app releases also require a manual refresh before they appear in the combined catalog.
 
-Auf GitHub: **Actions → Refresh app catalog → Run workflow → Branch main → Run workflow**. Alternativ:
+On GitHub: **Actions → Refresh app catalog → Run workflow → Branch main → Run workflow**. Alternatively:
 
 ```powershell
 gh workflow run refresh-catalog.yml --repo code-by-fh/ios-apps --ref main
 ```
 
-Der Workflow liest die registrierten öffentlichen Quellen und verwendet das repositoryeigene `GITHUB_TOKEN`, um die erzeugte JSON auf `main` zu aktualisieren. Er erstellt nur dann einen Commit, wenn sich der Katalog geändert hat. Zusätzliche Secrets sind nicht erforderlich.
+The workflow reads the registered public sources and uses the repository's `GITHUB_TOKEN` to update the generated JSON on `main`. It creates a commit only when the catalog changes. No additional secrets are required. Your PC can be offline while the GitHub-hosted workflow runs.
 
-Pull Requests führen Prüfungen aus und veröffentlichen keinen Katalog. Bei einer ungültigen beziehungsweise nicht erreichbaren aktivierten Quelle schlägt die Aktualisierung fehl; die letzte erfolgreiche Katalogdatei bleibt erhalten. Prüfe bei ausbleibenden Updates den Actions-Lauf sowie die betroffene App-Quelle.
+If an enabled source is invalid or unavailable, the refresh fails and preserves the last successfully published catalog. Check the Actions run and the affected app source if an update does not appear.
 
-## Lizenzen und Installation
+Changes to authored metadata in `apps.json`, including its English description, appear in the generated catalog only after the next successful manual refresh. Do not edit `altstore-source.json` directly to bypass this lifecycle.
 
-Die MIT-Lizenz dieses Repositories betrifft dessen Katalogwerkzeuge und eigenen Code. Sie erteilt **keine Lizenz an den aufgeführten Apps oder IPA-Dateien**. Für jede App gelten die Bedingungen des jeweiligen Rechteinhabers. Eine öffentlich herunterladbare Binärdatei ist nicht vertraulich; die App kann trotzdem proprietär lizenziert bleiben.
+## Licensing and installation
 
-Für die Installation gelten weiterhin die [SideStore-Voraussetzungen](https://docs.sidestore.io/docs/installation/prerequisites) und [Beschränkungen kostenloser Apple Accounts](https://docs.sidestore.io/docs/faq). Das Quellenformat orientiert sich an der [AltStore-Dokumentation](https://faq.altstore.io/developers/make-a-source).
+This repository's MIT license covers its catalog tools and original code. It **does not license the listed apps or IPA files**. Each app remains subject to its rights holder's terms. A publicly downloadable binary is not confidential, but it can still be proprietary software.
+
+The [SideStore prerequisites](https://docs.sidestore.io/docs/installation/prerequisites) and [free Apple Account limits](https://docs.sidestore.io/docs/faq) still apply. The source format follows the [AltStore documentation](https://faq.altstore.io/developers/make-a-source).
+
+Keep all maintained documentation, comments, configuration descriptions and other authored text in English.

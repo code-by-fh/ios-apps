@@ -3,7 +3,7 @@
   "identifier": "dev.codebyfh.iosapps",
   "sourceURL": "https://raw.githubusercontent.com/code-by-fh/ios-apps/main/altstore-source.json",
   "website": "https://github.com/code-by-fh/ios-apps",
-  "description": "Meine iOS-Apps aus einer gemeinsamen SideStore-Quelle.",
+  "description": "My iOS apps in a shared SideStore source.",
   "tintColor": "63E6CB",
   "sources": [
     {
