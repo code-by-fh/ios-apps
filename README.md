@@ -39,6 +39,7 @@ python scripts/register_app.py --repository owner/app-releases --license closed-
 git add apps.json
 git commit -m "Register app source"
 git push
+gh workflow run refresh-catalog.yml --repo code-by-fh/ios-apps --ref main
 ```
 
 Ersetze `owner/app-releases` durch das tatsächliche Release-Repository. Für eine Open-Source-App entsprechend `--license open-source` verwenden. Der Registrierungsbefehl bildet die Source-URL aus dem Repositorynamen; die Quelle muss als Datei des neuesten GitHub Releases verfügbar sein.
@@ -47,7 +48,15 @@ Die Kennzeichnung `open-source` beziehungsweise `closed-source` beschreibt das L
 
 ## Aktualisierung
 
-GitHub Actions aktualisiert den Katalog nach Änderungen an der Registrierung oder den Skripten, manuell über `workflow_dispatch` und geplant alle 15 Minuten. Geplante GitHub-Läufe können sich verzögern. Der Workflow liest ausschließlich öffentliche Quellen und verwendet das repositoryeigene `GITHUB_TOKEN`, um die erzeugte JSON auf `main` zu aktualisieren. Zusätzliche Secrets sind dafür nicht erforderlich.
+Der Katalog wird ausschließlich durch einen manuell gestarteten GitHub-Workflow auf `main` aktualisiert. Es gibt keinen Zeitplan. Pushes und Pull Requests führen nur Prüfungen aus und veröffentlichen keinen Katalog. Auch neue App-Releases werden erst nach dem manuellen Start in den gemeinsamen Katalog übernommen.
+
+Auf GitHub: **Actions → Refresh app catalog → Run workflow → Branch main → Run workflow**. Alternativ:
+
+```powershell
+gh workflow run refresh-catalog.yml --repo code-by-fh/ios-apps --ref main
+```
+
+Der Workflow liest die registrierten öffentlichen Quellen und verwendet das repositoryeigene `GITHUB_TOKEN`, um die erzeugte JSON auf `main` zu aktualisieren. Er erstellt nur dann einen Commit, wenn sich der Katalog geändert hat. Zusätzliche Secrets sind nicht erforderlich.
 
 Pull Requests führen Prüfungen aus und veröffentlichen keinen Katalog. Bei einer ungültigen beziehungsweise nicht erreichbaren aktivierten Quelle schlägt die Aktualisierung fehl; die letzte erfolgreiche Katalogdatei bleibt erhalten. Prüfe bei ausbleibenden Updates den Actions-Lauf sowie die betroffene App-Quelle.
 

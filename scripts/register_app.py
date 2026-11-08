@@ -41,7 +41,7 @@ def main():
     parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parents[1] / 'apps.json')
     args = parser.parse_args()
     print('Registered: ' + register(args.config, args.repository, args.license_kind, args.bundle_identifiers))
-    print('Next: commit apps.json and push; GitHub Actions refreshes the combined source.')
+    print('Next: commit and push apps.json, then manually run the Refresh app catalog workflow on main.')
 
 
 if __name__ == '__main__':

@@ -62,13 +62,14 @@ python scripts/register_app.py --repository owner/my-private-app-releases --lice
 git add apps.json
 git commit -m "Register closed-source app"
 git push
+gh workflow run refresh-catalog.yml --repo code-by-fh/ios-apps --ref main
 ```
 
 Die Registrierung ergänzt den Link auf die öffentliche App-Quelle und die Lizenzkennzeichnung. Der Katalog-Workflow lädt Metadaten von diesem öffentlichen Endpunkt. Er benötigt keinen Zugriff auf das private App-Projekt.
 
 ## 5. Neue App-Versionen bereitstellen
 
-Neue IPA im privaten App-Projekt bauen und herunterladen, Version beziehungsweise Buildnummer erhöhen und mit demselben öffentlichen Zielrepository veröffentlichen. Die Source-URL bleibt gleich. Der Katalog übernimmt die neue Version bei der nächsten erfolgreichen Aktualisierung; ein erneuter Registrierungseintrag ist nicht nötig.
+Neue IPA im privaten App-Projekt bauen und herunterladen, Version beziehungsweise Buildnummer erhöhen und mit demselben öffentlichen Zielrepository veröffentlichen. Die Source-URL bleibt gleich. Anschließend den Workflow **Refresh app catalog** im Katalog-Repository auf `main` manuell starten. Erst dieser Lauf übernimmt die neue Version in die gemeinsame Quelle; ein erneuter Registrierungseintrag ist nicht nötig. Es gibt keinen Zeitplan und keine Veröffentlichung des Katalogs durch Pushes.
 
 Ein Push zum privaten App-Repository allein veröffentlicht die IPA noch nicht im öffentlichen Download-Repository. Die vorbereitete CI stellt dort Build-Artefakte bereit und überspringt die automatische Release-Veröffentlichung im privaten Repository. Der oben beschriebene lokale Veröffentlichungsbefehl ist ein eigener Schritt. Eine spätere automatische Veröffentlichung aus privater CI benötigt eine ausdrücklich eingerichtete Freigabe und passende Berechtigungen für das zweite Repository; das repositoryeigene `GITHUB_TOKEN` erhält diesen Zugriff nicht automatisch.
 
